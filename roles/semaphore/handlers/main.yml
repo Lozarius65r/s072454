@@ -1,0 +1,19 @@
+---
+- name: "Systemd reread configs"
+  ansible.builtin.service:
+    daemon_reload: true
+
+- name: "Check semaphore service enabled"
+  ansible.builtin.service:
+    name: semaphore.service
+    enabled: yes
+
+- name: "Restart semaphore service"
+  ansible.builtin.service:
+    name: semaphore.service
+    state: restarted
+
+- name: "Reload firewalld service"
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded

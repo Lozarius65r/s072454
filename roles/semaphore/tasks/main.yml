@@ -1,0 +1,75 @@
+---
+- name: "Check is git present"
+  ansible.builtin.package:
+    name: git
+    state: present
+
+- name: "Ubuntu check semaphore tasks"
+  include_tasks: "ubuntu_semaphore_pkg_check.yml"
+  when: ansible_os_family == "Debian"
+
+- name: "Rocky check semaphore tasks"
+  include_tasks: "rocky_semaphore_pkg_check.yml"
+  when: ansible_os_family == "Rocky"
+
+- name: Check semaphore user
+  ansible.builtin.user:
+    name: semaphore
+    shell: /bin/false
+    state: present
+
+- name: Check directory for semaphore service
+  ansible.builtin.file:
+    path: /etc/semaphore
+    state: directory
+    owner: semaphore
+    group: semaphore
+    mode: 0755
+- name: "Check semaphore config"
+  ansible.builtin.template:
+    src: "config.json.j2"
+    dest: "/etc/semaphore/config.json"
+    mode: 0644
+    owner: semaphore
+    group: semaphore
+
+- name: "Check semaphore service files"
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/semaphore/"
+    mode: 0755
+    owner: semaphore
+    group: semaphore
+  loop:
+    - "env"
+    - "runner.service"
+    - "semaphore.service"
+
+- name: "Check service symlink"
+  ansible.builtin.file:
+    src: "/etc/semaphore/semaphore.service"
+    dest: "/etc/systemd/system/semaphore.service"
+    state: "link" 
+  notify: 
+    - Systemd reread configs
+    - Check semaphore service enabled
+    - Restart semaphore service
+
+- name: "Add admin user to semaphore" 
+  block:
+    - name: "Try to add admin user to semaphore"
+      ansible.builtin.shell: semaphore user add --admin --login su --email su@example.com --name "Super user" --password password
+  rescue:
+    - name: "Print when errors"
+      ansible.builtin.debug:
+        msg: 'Can`t create user. Created earlier?'
+
+- name: "Rocky check firewall port"
+  include_tasks: "rocky_firewall_port_check.yml"
+  when: ansible_os_family == "Rocky"
+
+- name: "Ubuntu check firewall port"
+  include_tasks: "ubuntu_firewall_port_check.yml"
+  when: ansible_os_family == "Debian"
+
+

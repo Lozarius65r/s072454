@@ -1,0 +1,11 @@
+---
+- name: "Rocky task: Copy file to install semaphore"
+  ansible.builtin.copy:
+    src: semaphore_2.10.35_linux_amd64.rpm
+    dest: /tmp/semaphore_2.10.35_linux_amd64.rpm
+
+- name: "Rocky task: Check semaphore is installed from a local file"
+  ansible.builtin.yum:
+      name: "/tmp/semaphore_2.10.35_linux_amd64.rpm"
+      state: present
+      disable_gpg_check: True

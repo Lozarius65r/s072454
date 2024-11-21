@@ -1,0 +1,10 @@
+---
+- name: "Ubuntu task: Copy file to install semaphore"
+  ansible.builtin.copy:
+    src: semaphore_2.10.35_linux_amd64.deb
+    dest: /tmp/semaphore_2.10.35_linux_amd64.deb
+
+- name: "Ubuntu task: Check semaphore is installed from a local file"
+  ansible.builtin.apt:
+      deb: "/tmp/semaphore_2.10.35_linux_amd64.deb"
+      state: present

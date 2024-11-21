@@ -1,0 +1,5 @@
+postgresql_databases:
+  - name: semaphoredb
+postgresql_users:
+  - name: semaphore
+    password: supersecurepass

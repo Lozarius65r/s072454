@@ -1,0 +1,9 @@
+---
+- name: "Rocky task: Check port 8080"
+  ansible.posix.firewalld:
+    port: 8080/tcp
+    permanent: true
+    state: enabled
+  notify: 
+    - Reload firewalld service
+
